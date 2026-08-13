@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ligma-Translate</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root{
+    --bg: #0f1115;
+    --panel: #161923;
+    --panel-2: #1d212e;
+    --line: #2a2f3d;
+    --text: #eef0f4;
+    --muted: #8a90a3;
+    --accent: #7cf29c;
+    --accent-dim: #4d9e63;
+    --mono: 'JetBrains Mono', 'Courier New', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(124,242,156,0.06), transparent 40%),
+      var(--bg);
+    color:var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:40px 16px 60px;
+  }
+  header{
+    width:100%;
+    max-width:900px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:28px;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .logo{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .logo .mark{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--bg);
+    background:var(--accent);
+    padding:3px 7px;
+    border-radius:4px;
+    font-weight:700;
+    letter-spacing:0.02em;
+  }
+  h1{
+    font-size:26px;
+    margin:0;
+    font-weight:800;
+    letter-spacing:-0.02em;
+  }
+  h1 span{color:var(--accent);}
+  .tagline{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--muted);
+  }
+  main{
+    width:100%;
+    max-width:900px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+  }
+  .lang-bar{
+    display:flex;
+    align-items:center;
+    border-bottom:1px solid var(--line);
+    background:var(--panel-2);
+  }
+  .lang-select{
+    flex:1;
+    display:flex;
+    align-items:center;
+  }
+  select{
+    appearance:none;
+    background:transparent;
+    border:none;
+    color:var(--text);
+    font-size:14px;
+    font-weight:600;
+    padding:16px 18px;
+    width:100%;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  select:focus{outline:none; background:rgba(124,242,156,0.06);}
+  .swap-btn{
+    width:38px;
+    height:38px;
+    min-width:38px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    background:var(--bg);
+    color:var(--accent);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:16px;
+    margin:0 10px;
+    transition:transform 0.25s ease, border-color 0.2s ease;
+  }
+  .swap-btn:hover{border-color:var(--accent); transform:rotate(180deg);}
+  .panels{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .panel{
+    position:relative;
+    padding:20px;
+    min-height:220px;
+  }
+  .panel:first-child{border-right:1px solid var(--line);}
+  textarea{
+    width:100%;
+    height:160px;
+    background:transparent;
+    border:none;
+    resize:none;
+    color:var(--text);
+    font-size:17px;
+    line-height:1.5;
+    font-family:inherit;
+  }
+  textarea:focus{outline:none;}
+  textarea::placeholder{color:var(--muted);}
+  .output{
+    font-size:17px;
+    line-height:1.5;
+    color:var(--text);
+    min-height:160px;
+    white-space:pre-wrap;
+  }
+  .output.placeholder{color:var(--muted);}
+  .char-count{
+    position:absolute;
+    bottom:12px;
+    left:20px;
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--muted);
+  }
+  .status{
+    position:absolute;
+    top:20px;
+    right:20px;
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--accent-dim);
+  }
+  footer.actions{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 20px;
+    border-top:1px solid var(--line);
+    background:var(--panel-2);
+  }
+  .hint{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--muted);
+  }
+  .translate-btn{
+    background:var(--accent);
+    color:#0a0f0c;
+    border:none;
+    font-weight:700;
+    font-size:13px;
+    padding:10px 22px;
+    border-radius:8px;
+    cursor:pointer;
+    letter-spacing:0.02em;
+    transition:filter 0.15s ease, transform 0.1s ease;
+    font-family:var(--mono);
+  }
+  .translate-btn:hover{filter:brightness(1.1);}
+  .translate-btn:active{transform:scale(0.97);}
+  .translate-btn:disabled{opacity:0.5; cursor:default;}
+  .footnote{
+    max-width:900px;
+    width:100%;
+    text-align:center;
+    margin-top:18px;
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--muted);
+    line-height:1.6;
+  }
+  .footnote b{color:var(--accent-dim);}
+  @media (max-width:640px){
+    .panels{grid-template-columns:1fr;}
+    .panel:first-child{border-right:none; border-bottom:1px solid var(--line);}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="mark">λ</span>
+    <div>
+      <h1>Ligma-<span>Translate</span></h1>
+      <div class="tagline">it means what it means, 200+ languages, zero dignity lost</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="lang-bar">
+    <div class="lang-select">
+      <select id="fromLang"></select>
+    </div>
+    <button class="swap-btn" id="swapBtn" title="Swap languages">&#8646;</button>
+    <div class="lang-select">
+      <select id="toLang"></select>
+    </div>
+  </div>
+
+  <div class="panels">
+    <div class="panel">
+      <textarea id="inputText" placeholder="Type something to translate..." maxlength="500"></textarea>
+      <div class="char-count"><span id="charCount">0</span> / 500</div>
+    </div>
+    <div class="panel">
+      <div class="status" id="status"></div>
+      <div class="output placeholder" id="outputText">Translation will appear here.</div>
+    </div>
+  </div>
+
+  <footer class="actions">
+    <div class="hint">powered by a free public translation API</div>
+    <button class="translate-btn" id="translateBtn">TRANSLATE →</button>
+  </footer>
+</main>
+
+<div class="footnote">
+  <b>Ligma-Translate</b> is an unofficial, unaffiliated clone built for fun.<br>
+  Not associated with Google in any way, shape, or form.
+</div>
+
+<script>
+const languages = {
+  "en":"English","es":"Spanish","fr":"French","de":"German","it":"Italian",
+  "pt":"Portuguese","ru":"Russian","ja":"Japanese","ko":"Korean","zh":"Chinese (Simplified)",
+  "ar":"Arabic","hi":"Hindi","nl":"Dutch","sv":"Swedish","pl":"Polish","tr":"Turkish",
+  "vi":"Vietnamese","th":"Thai","id":"Indonesian","el":"Greek","he":"Hebrew",
+  "uk":"Ukrainian","cs":"Czech","ro":"Romanian","hu":"Hungarian","fi":"Finnish",
+  "da":"Danish","no":"Norwegian"
+};
+
+const fromSel = document.getElementById('fromLang');
+const toSel = document.getElementById('toLang');
+const inputText = document.getElementById('inputText');
+const outputText = document.getElementById('outputText');
+const charCount = document.getElementById('charCount');
+const translateBtn = document.getElementById('translateBtn');
+const status = document.getElementById('status');
+const swapBtn = document.getElementById('swapBtn');
+
+function populateSelect(sel, selected){
+  for (const [code, name] of Object.entries(languages)){
+    const opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = name;
+    if (code === selected) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+populateSelect(fromSel, 'en');
+populateSelect(toSel, 'es');
+
+inputText.addEventListener('input', () => {
+  charCount.textContent = inputText.value.length;
+});
+
+swapBtn.addEventListener('click', () => {
+  const f = fromSel.value;
+  fromSel.value = toSel.value;
+  toSel.value = f;
+  if (outputText.textContent && !outputText.classList.contains('placeholder')){
+    inputText.value = outputText.textContent;
+    charCount.textContent = inputText.value.length;
+    doTranslate();
+  }
+});
+
+let debounceTimer;
+inputText.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(doTranslate, 600);
+});
+fromSel.addEventListener('change', doTranslate);
+toSel.addEventListener('change', doTranslate);
+translateBtn.addEventListener('click', doTranslate);
+
+async function doTranslate(){
+  const text = inputText.value.trim();
+  if (!text){
+    outputText.textContent = 'Translation will appear here.';
+    outputText.classList.add('placeholder');
+    status.textContent = '';
+    return;
+  }
+  const from = fromSel.value;
+  const to = toSel.value;
+  if (from === to){
+    outputText.textContent = text;
+    outputText.classList.remove('placeholder');
+    status.textContent = '';
+    return;
+  }
+
+  status.textContent = 'translating...';
+  translateBtn.disabled = true;
+
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const translated = data?.responseData?.translatedText;
+    if (translated){
+      outputText.textContent = translated;
+      outputText.classList.remove('placeholder');
+      status.textContent = 'done';
+    } else {
+      outputText.textContent = 'Could not translate that. Try again.';
+      outputText.classList.remove('placeholder');
+      status.textContent = 'error';
+    }
+  } catch (err){
+    outputText.textContent = 'Network error, translation service unreachable.';
+    outputText.classList.remove('placeholder');
+    status.textContent = 'error';
+  } finally {
+    translateBtn.disabled = false;
+    setTimeout(() => { status.textContent = ''; }, 1500);
+  }
+}
+</script>
+</body>
+</html>
